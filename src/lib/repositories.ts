@@ -4,10 +4,16 @@ import type { DiseaseStage, HealthStatus, InspectionStatus, Role, Tree } from ".
 export interface TreeFilters {
   farmId?: string;
   fieldId?: string;
+  state?: string;
+  inChargeId?: string;
   query?: string;
   healthStatus?: HealthStatus | "all";
   diseaseStage?: DiseaseStage | "all";
   inspectionStatus?: InspectionStatus | "all";
+  minConfidence?: number;
+  startDate?: string;
+  endDate?: string;
+  mostAffectedFirst?: boolean;
 }
 
 export const repositories = {
@@ -18,7 +24,8 @@ export const repositories = {
   },
   farms: {
     list: () => farms,
-    byId: (id: string) => farms.find((farm) => farm.id === id)
+    byId: (id: string) => farms.find((farm) => farm.id === id),
+    states: () => Array.from(new Set(farms.map((farm) => farm.state))).sort()
   },
   fields: {
     list: () => fields,
@@ -26,7 +33,7 @@ export const repositories = {
     byFarm: (farmId: string) => fields.filter((field) => field.farmId === farmId)
   },
   trees: {
-    list: (filters: TreeFilters = {}) => filterTrees(trees, filters),
+    list: (filters: TreeFilters = {}) => sortTrees(filterTrees(trees, filters), filters),
     byId: (id: string) => trees.find((tree) => tree.id === id || tree.treeCode === id),
     byFarm: (farmId: string) => trees.filter((tree) => tree.farmId === farmId),
     byField: (fieldId: string) => trees.filter((tree) => tree.fieldId === fieldId)
@@ -94,12 +101,24 @@ export function dashboardStats(sourceTrees = trees) {
 
 function filterTrees(sourceTrees: Tree[], filters: TreeFilters) {
   return sourceTrees.filter((tree) => {
+    const farm = farms.find((item) => item.id === tree.farmId);
+    const field = fields.find((item) => item.id === tree.fieldId);
     const query = filters.query?.toLowerCase().trim();
     return (!filters.farmId || tree.farmId === filters.farmId)
       && (!filters.fieldId || tree.fieldId === filters.fieldId)
+      && (!filters.state || farm?.state === filters.state)
+      && (!filters.inChargeId || farm?.inChargeId === filters.inChargeId || field?.inChargeId === filters.inChargeId)
       && (!query || tree.treeCode.toLowerCase().includes(query))
       && (!filters.healthStatus || filters.healthStatus === "all" || tree.currentHealthStatus === filters.healthStatus)
       && (!filters.diseaseStage || filters.diseaseStage === "all" || tree.currentDiseaseStage === filters.diseaseStage)
-      && (!filters.inspectionStatus || filters.inspectionStatus === "all" || tree.inspectionStatus === filters.inspectionStatus);
+      && (!filters.inspectionStatus || filters.inspectionStatus === "all" || tree.inspectionStatus === filters.inspectionStatus)
+      && (!filters.minConfidence || tree.currentConfidence >= filters.minConfidence)
+      && (!filters.startDate || tree.latestScanDate >= filters.startDate)
+      && (!filters.endDate || tree.latestScanDate <= filters.endDate);
   });
+}
+
+function sortTrees(sourceTrees: Tree[], filters: TreeFilters) {
+  if (!filters.mostAffectedFirst) return sourceTrees;
+  return [...sourceTrees].sort((a, b) => b.riskScore - a.riskScore || b.currentConfidence - a.currentConfidence);
 }

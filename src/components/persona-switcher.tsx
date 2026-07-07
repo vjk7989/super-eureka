@@ -13,7 +13,7 @@ export function PersonaSwitcher({ role }: { role: Role }) {
   return (
     <select
       aria-label="Switch prototype persona"
-      className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+      className="max-w-[52vw] rounded-md border border-input bg-card px-3 py-2 text-sm font-medium shadow-xs"
       value={role}
       onChange={(event) => {
         const next = new URLSearchParams(params.toString());

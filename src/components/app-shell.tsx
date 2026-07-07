@@ -23,27 +23,27 @@ export function AppShell({ children, role }: { children: React.ReactNode; role: 
   const items = navigation.filter((item) => item.roles.includes(role));
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-border bg-sidebar px-4 py-5 lg:block">
-        <Link href={`/admin/overview?role=${role}`} className="block text-xl font-semibold">Oil Palm Health</Link>
-        <p className="mt-1 text-sm text-muted-foreground">Command Center Prototype</p>
-        <nav className="mt-8 space-y-1">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-border bg-sidebar px-4 py-5 shadow-sm lg:block">
+        <Link href={`/admin/overview?role=${role}`} className="block rounded-md px-2 py-1 text-xl font-semibold tracking-normal text-sidebar-foreground hover:bg-sidebar-accent">Oil Palm Health</Link>
+        <p className="mt-1 px-2 text-sm text-muted-foreground">Operational GIS prototype</p>
+        <nav className="mt-7 space-y-1">
           {items.map((item) => (
-            <Link key={item.href} href={`${item.href}?role=${role}`} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent">
-              <item.icon className="h-4 w-4" />
+            <Link key={item.href} href={`${item.href}?role=${role}`} className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+              <item.icon className="h-4 w-4 text-primary" />
               {item.label}
             </Link>
           ))}
         </nav>
       </aside>
       <main className="lg:pl-72">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:px-8">
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Prototype role</p>
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Prototype role</p>
             <h1 className="text-lg font-semibold">{roleLabels[role]}</h1>
           </div>
           <PersonaSwitcher role={role} />
         </header>
-        <div className="px-4 py-6 lg:px-8">{children}</div>
+        <div className="mx-auto max-w-[1800px] px-4 py-5 lg:px-8">{children}</div>
       </main>
     </div>
   );

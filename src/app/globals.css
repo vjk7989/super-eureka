@@ -1,4 +1,5 @@
 @import "../styles/theme.css";
+@import "leaflet/dist/leaflet.css";
 
 html {
   background: var(--background);
@@ -8,6 +9,17 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+}
+
+.leaflet-container {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  font: inherit;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
 }
 
 button,

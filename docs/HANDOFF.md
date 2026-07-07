@@ -3,8 +3,12 @@
 ## Current Status
 
 - Workspace: `G:\GUI-oilpalm`.
-- The workspace now contains a prototype-first Next.js app with mock data, role-aware routes, tree grid, map fallback, uploads, inspections, AI feedback, reports, and Supabase blueprint SQL.
-- `git status --short` failed with `fatal: not a git repository`, so future agents should verify repository setup before relying on Git history or branch state.
+- The workspace is a valid Git repository with local uncommitted prototype, theme, map, and documentation changes.
+- The workspace contains a prototype-first Next.js app with mock data, role-aware routes, tree grid, Leaflet/OpenStreetMap disease map, uploads, inspections, AI feedback, reports, and Supabase blueprint SQL.
+- `DESIGN.md` defines the operational GIS design system, and shared UI surfaces have been visually tightened around that language.
+- The latest map workflow work links Leaflet farm/field/tree selection to an embedded tree grid and adds in-memory session map grids with reopen, export, and delete actions.
+- Playwright E2E coverage now verifies the map-grid workflow against a production server on port `3100` using installed Chrome.
+- Recent UI recovery work fixed the plain-HTML map regression by cleaning stale local Next output and verifying the built app through a single production server on port `3001`.
 
 ## Project Constraints
 
@@ -19,6 +23,8 @@
 - Project agent instructions: `AGENTS.md`.
 - Primary handoff: `docs/HANDOFF.md`.
 - Architecture decisions, operational lessons, errors, fixes, and suggestions: `docs/ARCHITECTURE_RECORD.md`.
+- Product context: `PRODUCT.md`.
+- Design system: `DESIGN.md`.
 - Supabase blueprint: `supabase/migrations/0001_oil_palm_blueprint.sql` and `supabase/storage.sql`.
 - Add future docs only when they directly support current work.
 - If architecture, setup, or decision docs are introduced later, link them from this file rather than duplicating their content.
@@ -44,7 +50,18 @@
 - If verification cannot run because the workspace is incomplete, dependencies are missing, or Git is unavailable, state that clearly in the final response.
 - Do not add broad test scaffolding until the project structure and tooling are known.
 
+## Current Verification Notes
+
+- Use installed Chrome through Playwright when browser verification is needed; do not download Playwright browsers to `C:`.
+- If `/_next/static/css/app/layout.css` returns `404` and the page renders as plain HTML, stop duplicate servers on ports `3000` and `3001`, clear only workspace-local `.next`, then either restart one clean dev server or run a fresh build and verify with `next start`.
+- Running `next dev` after a production build can mix `.next` output and cause missing vendor chunk errors. For final smoke checks, prefer `npm run build` followed by `npm run start -- --port 3001`.
+- Verification completed on 2026-07-08: `npm run lint`, `npm run typecheck`, and `npm run build` passed.
+- Production browser smoke passed for `/map`, `/farms/farm-ap-1/map`, `/fields/field-ap-b12/map`, `/trees/GAVL-AP-01-B12-000342/map`, `/admin/tree-grid`, and `/admin/drone-scans/scan-1`.
+- Subagents were used for edge-case planning and independent verification. The runner also observed dev-server instability, which is why production-mode smoke verification is the current trusted result.
+- Map-grid implementation note: saved map grids are intentionally in-memory only; they capture visible tree IDs, active filters, selected scope, and creation time without writing to Supabase.
+- Map-grid E2E verification completed on 2026-07-08: `npm run lint`, `npm run typecheck`, and `npm run test:e2e` passed locally. The E2E suite covers initial render, create/delete saved grids, farm/field map selection, grid row selection, reopen, CSV export, empty results/reset, and mobile overflow.
+- Playwright uses `playwright.config.ts`, `npm run test:e2e`, and the Chrome channel. Reports/results are ignored via `.gitignore`.
+
 ## Open Questions
 
-- Is `.git` intentionally incomplete, or is this workspace expected to become a normal Git repository?
-- What application stack, build commands, and test commands should future agents use once source files are present?
+- Confirm whether the current local changes should be committed and pushed to `vjk7989/super-eureka` after verification.

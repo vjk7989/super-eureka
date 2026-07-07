@@ -29,6 +29,8 @@ export interface Farm {
   riskScore: number;
   status: "active" | "inactive";
   boundary: [number, number][];
+  inChargeId: string;
+  center: [number, number];
 }
 
 export interface Field {
@@ -41,6 +43,8 @@ export interface Field {
   riskScore: number;
   status: "active" | "inactive";
   boundary: [number, number][];
+  inChargeId: string;
+  center: [number, number];
 }
 
 export interface Tree {
@@ -59,6 +63,10 @@ export interface Tree {
   inspectionStatus: InspectionStatus;
   treatmentStatus: "none" | "recommended" | "in_progress" | "completed";
   riskScore: number;
+  imageUrls: string[];
+  history: TreeHistoryEvent[];
+  lastAffectedAt?: string;
+  geoQuality: "valid" | "missing" | "invalid" | "suspect";
 }
 
 export interface DroneScan {
