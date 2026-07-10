@@ -131,6 +131,19 @@ Keep entries short, dated, and factual. Prefer recording decisions that affect f
 - Dense Leaflet SVG layers may overlap visually, so tests use stable layer hooks and dispatch map-layer clicks for deterministic selection checks.
 - Keep this suite scoped to the map-grid workflow unless a future task explicitly broadens app smoke coverage.
 
+### 2026-07-09: Keep Tree Detail Selection Separate From Map Scope
+
+**Decision:** Tree detail selection now highlights and focuses the selected tree while keeping the full current visible tree set in the map grid. Farm and block selections remain the only map interactions that narrow scope outside explicit filter controls.
+
+**Why:** Operators need to inspect one tree without losing surrounding rows, heat cues, saved-grid context, or current filter results.
+
+**Care points:**
+
+- Treat `currentConfidence` as the displayed probability until a separate probability field is introduced.
+- Keep heatmap-style grid cues as row-level severity/probability/status affordances, not a replacement for the tabular grid.
+- Keep selected-tree detail rich but compact: latest image, health, disease stage, probability, risk, scan date, inspection/treatment status, and recent history.
+- Overview maps should stay compact and operational, using role-scoped farms, fields, and trees instead of embedding the full map-grid workspace.
+
 ## Error And Fix Log
 
 Use this section for recurring issues, build failures, runtime errors, or environment problems.
@@ -174,6 +187,16 @@ Use this section for recurring issues, build failures, runtime errors, or enviro
 **Fix:** Stop only `G:\GUI-oilpalm` Next dev-server processes, clear `G:\GUI-oilpalm\.next` after confirming the resolved path, rerun the build, then restart a single dev server on port `3001`.
 
 **Verification:** `npm run build` completed successfully and representative routes returned `200` from `http://localhost:3001`.
+
+### 2026-07-09: Playwright Video Teardown Failed In Restricted Sandbox
+
+**Error:** Focused Playwright runs passed assertions but failed or hung during teardown with `browserContext.close: spawn EPERM`.
+
+**Cause:** The restricted Windows sandbox blocked Playwright helper process spawning during video finalization and child process cleanup.
+
+**Fix:** Disable Playwright video recording in `playwright.config.ts`; keep screenshots and traces for failure artifacts under workspace-local `test-results/` and `playwright-report/`.
+
+**Verification:** Focused map-grid E2E reruns completed after disabling video. Full E2E verification should be run with process permissions that allow Playwright to start and stop Chrome and the production Next server.
 
 ### Template
 

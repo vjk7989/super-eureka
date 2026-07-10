@@ -47,6 +47,7 @@ test.describe("map-grid workflow", () => {
   });
 
   test("selects a tree from the grid and focuses the selected row", async ({ page }) => {
+    const initialRows = await visibleRowCount(page);
     const firstRow = page.getByTestId("tree-grid-row").first();
     const treeCode = (await firstRow.locator("td").first().innerText()).trim();
 
@@ -54,8 +55,13 @@ test.describe("map-grid workflow", () => {
 
     await expect(page.getByText("Selected tree")).toBeVisible();
     await expect(page.getByText(`Grid scope: ${treeCode}`)).toBeVisible();
-    await expect(page.getByTestId("tree-grid-row")).toHaveCount(1);
+    await expectVisibleRowCount(page, initialRows);
     await expect(page.locator('tr[aria-selected="true"]')).toHaveCount(1);
+    const detailPanel = page.getByTestId("selected-tree-panel");
+    await expect(detailPanel.getByRole("img", { name: `${treeCode} latest scan image` })).toBeVisible();
+    await expect(detailPanel.getByText("Probability", { exact: true })).toBeVisible();
+    await expect(detailPanel.getByText("Risk score")).toBeVisible();
+    await expect(detailPanel.getByText("Drone scan uploaded")).toBeVisible();
     await expect(page.locator(".leaflet-container")).toBeVisible();
   });
 
@@ -111,6 +117,29 @@ test.describe("map-grid workflow", () => {
     await expect(page.locator(".leaflet-container")).toBeVisible();
     await expect(page.getByTestId("selection-grid")).toBeVisible();
     await expect(page.getByTestId("saved-map-grids")).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test("overview renders compact map and operational insight panels", async ({ page }) => {
+    await page.goto("/admin/overview");
+    await expect(page.getByTestId("overview-map-panel")).toBeVisible();
+    await expect(page.getByTestId("overview-map-panel").locator(".leaflet-container")).toBeVisible();
+    await expect(page.getByTestId("highest-risk-farms")).toBeVisible();
+    await expect(page.getByTestId("highest-risk-blocks")).toBeVisible();
+    await expect(page.getByTestId("severe-stage-queue")).toBeVisible();
+    await expect(page.getByTestId("recent-scan-activity")).toBeVisible();
+    await expect(page.getByTestId("ai-feedback-summary")).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test("overview mobile layout keeps compact map and avoids overflow", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/admin/overview");
+
+    await expect(page.getByTestId("overview-map-panel")).toBeVisible();
+    await expect(page.getByTestId("overview-map-panel").locator(".leaflet-container")).toBeVisible();
+    await expect(page.getByTestId("highest-risk-farms")).toBeVisible();
+    await expect(page.getByTestId("ai-feedback-summary")).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
 });

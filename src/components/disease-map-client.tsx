@@ -91,8 +91,9 @@ export function DiseaseMapClient({ farms, fields, trees }: { farms: Farm[]; fiel
   const selectedField = fields.find((field) => field.id === selectedFieldId) ?? null;
   const mostAffectedFarms = rankFarms(visibleFarms, visibleTrees);
   const mostAffectedFields = rankFields(visibleFields, visibleTrees);
-  const gridTrees = selectedTree ? [selectedTree] : visibleTrees;
-  const selectedScopeType = selectedTree ? "tree" : selectedFieldId ? "field" : selectedFarmId ? "farm" : hasActiveFilters(filters) ? "filtered" : "all";
+  const gridTrees = visibleTrees;
+  const selectedScopeType = selectedFieldId ? "field" : selectedFarmId ? "farm" : hasActiveFilters(filters) ? "filtered" : "all";
+  const scopeStats = summarizeTrees(gridTrees);
 
   useEffect(() => {
     if (selectedTree && !visibleTrees.some((tree) => tree.id === selectedTree.id)) {
@@ -142,8 +143,6 @@ export function DiseaseMapClient({ farms, fields, trees }: { farms: Farm[]; fiel
 
   function selectTree(tree: Tree) {
     setSelectionMode("tree");
-    setSelectedFarmId(tree.farmId);
-    setSelectedFieldId(tree.fieldId);
     setSelectedTree(tree);
   }
 
@@ -218,6 +217,7 @@ export function DiseaseMapClient({ farms, fields, trees }: { farms: Farm[]; fiel
               <SelectionModeControl value={selectionMode} onChange={updateSelectionMode} />
               <p className="text-sm text-muted-foreground">Grid scope: <span className="font-medium text-foreground">{scopeLabel(selectedScopeType, selectedFarm, selectedField, selectedTree)}</span></p>
             </div>
+            <ScopeSummaryStrip mode={selectionMode} selectedTree={selectedTree} stats={scopeStats} />
             <div className="relative h-[min(720px,calc(100vh-190px))] min-h-[460px]" data-testid="operational-map">
               <MapContainer center={[20.4, 82.1]} zoom={5} scrollWheelZoom className="z-0">
                 <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -265,7 +265,7 @@ export function DiseaseMapClient({ farms, fields, trees }: { farms: Farm[]; fiel
               <div>
                 <p className="text-xs font-semibold uppercase text-muted-foreground">Selection grid</p>
                 <h3 className="text-lg font-semibold leading-tight">{gridTrees.length} mapped trees</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Rows follow the current map selection and filters.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Rows keep the full visible scope; selecting a tree highlights it and opens details.</p>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm sm:w-64" value={gridName} onChange={(event) => setGridName(event.target.value)} aria-label="Map grid name" />
@@ -282,12 +282,34 @@ export function DiseaseMapClient({ farms, fields, trees }: { farms: Farm[]; fiel
 }
 
 function SelectionModeControl({ value, onChange }: { value: SelectionMode; onChange: (value: SelectionMode) => void }) {
-  const modes: Array<[SelectionMode, string]> = [["farm", "Farm"], ["field", "Field"], ["tree", "Tree"]];
+  const modes: Array<[SelectionMode, string]> = [["farm", "Farm scope"], ["field", "Block scope"], ["tree", "Tree detail"]];
   return (
     <div className="inline-flex rounded-md border border-border bg-background p-1" aria-label="Map selection mode" data-testid="selection-mode-control">
       {modes.map(([mode, label]) => (
         <button key={mode} className={`rounded px-3 py-1.5 text-sm font-medium ${value === mode ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`} onClick={() => onChange(mode)} type="button" data-testid={`selection-mode-${mode}`}>{label}</button>
       ))}
+    </div>
+  );
+}
+
+function ScopeSummaryStrip({ mode, selectedTree, stats }: { mode: SelectionMode; selectedTree: Tree | null; stats: ReturnType<typeof summarizeTrees> }) {
+  const modeLabel = mode === "farm" ? "Farm scope" : mode === "field" ? "Block scope" : "Tree detail";
+  return (
+    <div className="grid gap-2 border-b border-border bg-background px-4 py-3 text-sm sm:grid-cols-2 xl:grid-cols-5">
+      <SummaryPill label="Mode" value={modeLabel} />
+      <SummaryPill label="Visible trees" value={stats.total} />
+      <SummaryPill label="Affected" value={stats.affected} tone="risk" />
+      <SummaryPill label="Severe" value={stats.severe} tone="risk" />
+      <SummaryPill label="Selected" value={selectedTree?.treeCode ?? "None"} />
+    </div>
+  );
+}
+
+function SummaryPill({ label, value, tone = "default" }: { label: string; value: string | number; tone?: "default" | "risk" }) {
+  return (
+    <div className={`rounded-md border px-3 py-2 ${tone === "risk" ? "border-red-200 bg-red-50 text-red-900" : "border-border bg-muted/50"}`}>
+      <p className="text-[11px] font-semibold uppercase text-muted-foreground">{label}</p>
+      <p className="mt-1 truncate font-semibold">{value}</p>
     </div>
   );
 }
@@ -422,7 +444,7 @@ function SavedMapGrids({ grids, onReopen, onExport, onDelete }: { grids: MapGrid
 
 function SummaryCard({ selectedFarm, selectedField, farms, fields }: { selectedFarm: Farm | null; selectedField: Field | null; farms: Array<{ farm: Farm; affected: number; severe: number }>; fields: Array<{ field: Field; affected: number; severe: number }> }) {
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm" data-testid="selected-tree-panel">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm">
       <div>
         <p className="text-xs font-semibold uppercase text-muted-foreground">{selectedField ? "Selected block" : selectedFarm ? "Selected farm" : "Overall risk ranking"}</p>
         <h3 className="text-xl font-semibold leading-tight">{selectedField?.name ?? selectedFarm?.name ?? "Most affected areas"}</h3>
@@ -441,26 +463,47 @@ function SummaryCard({ selectedFarm, selectedField, farms, fields }: { selectedF
 
 function TreeDrawer({ tree }: { tree: Tree }) {
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm" data-testid="selected-tree-panel">
       <div>
         <p className="text-xs font-semibold uppercase text-muted-foreground">Selected tree</p>
         <h3 className="text-xl font-semibold leading-tight">{tree.treeCode}</h3>
+      </div>
+      <div className="aspect-[4/3] overflow-hidden rounded-md border border-border bg-muted">
+        <div className="h-full w-full bg-cover bg-center" style={{ backgroundImage: `url(${tree.latestImageUrl})` }} role="img" aria-label={`${tree.treeCode} latest scan image`} />
       </div>
       <div className="flex flex-wrap gap-2"><HealthStatusBadge value={tree.currentHealthStatus} /><DiseaseStageBadge value={tree.currentDiseaseStage} /><InspectionStatusBadge value={tree.inspectionStatus} /></div>
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <dt className="text-muted-foreground">Latitude</dt><dd>{tree.latitude.toFixed(6)}</dd>
         <dt className="text-muted-foreground">Longitude</dt><dd>{tree.longitude.toFixed(6)}</dd>
-        <dt className="text-muted-foreground">Confidence</dt><dd>{formatPercent(tree.currentConfidence)}</dd>
+        <dt className="text-muted-foreground">Probability</dt><dd>{formatPercent(tree.currentConfidence)}</dd>
+        <dt className="text-muted-foreground">Risk score</dt><dd>{tree.riskScore}</dd>
         <dt className="text-muted-foreground">Scan date</dt><dd>{tree.latestScanDate}</dd>
+        <dt className="text-muted-foreground">Treatment</dt><dd className="capitalize">{tree.treatmentStatus.replaceAll("_", " ")}</dd>
       </dl>
-      <div className="grid grid-cols-2 gap-2">
-        {tree.imageUrls.map((url) => <div key={url} className="aspect-video rounded-md bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />)}
+      <div>
+        <div className="mb-1 flex items-center justify-between text-xs">
+          <span className="font-semibold uppercase text-muted-foreground">Model probability</span>
+          <span className="font-semibold">{formatPercent(tree.currentConfidence)}</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(tree.currentConfidence * 100)}%` }} />
+        </div>
       </div>
       <section>
         <h4 className="mb-2 text-sm font-semibold">History</h4>
-        <div className="space-y-2">{tree.history.map((event) => <div key={event.id} className="rounded-md bg-muted px-3 py-2 text-sm"><p className="font-medium">{event.eventTitle}</p><p className="text-muted-foreground">{event.createdAt} - {event.eventDescription}</p></div>)}</div>
+        <div className="space-y-2">
+          {tree.history.length ? tree.history.map((event) => (
+            <div key={event.id} className="rounded-md border border-border bg-muted/70 px-3 py-2 text-sm">
+              <p className="font-medium">{event.eventTitle}</p>
+              <p className="text-muted-foreground">{event.createdAt} - {event.eventDescription}</p>
+            </div>
+          )) : <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">No history events recorded.</p>}
+        </div>
       </section>
-      <Link className="inline-flex rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90" href={`/trees/${tree.id}`}>Open full profile</Link>
+      <div className="flex flex-wrap gap-2">
+        <Link className="inline-flex rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90" href={`/trees/${tree.id}`}>Open full profile</Link>
+        <Link className="inline-flex rounded-md border border-border bg-background px-3 py-2 text-sm font-semibold hover:bg-secondary" href={`/manager/inspections/assign?tree=${tree.id}`}>Assign inspection</Link>
+      </div>
     </div>
   );
 }
@@ -588,4 +631,12 @@ function buildBounds(trees: Tree[], fields: Field[], farms: Farm[]): LatLngBound
   const farmPoints = farms.flatMap((farm) => farm.boundary.map(([lng, lat]) => [lat, lng] as [number, number]));
   const points = treePoints.length ? treePoints : fieldPoints.length ? fieldPoints : farmPoints;
   return points.length ? points : null;
+}
+
+function summarizeTrees(sourceTrees: Tree[]) {
+  return {
+    total: sourceTrees.length,
+    affected: sourceTrees.filter((tree) => tree.currentHealthStatus === "affected").length,
+    severe: sourceTrees.filter((tree) => tree.currentDiseaseStage === "stage_2" || tree.currentDiseaseStage === "stage_3").length
+  };
 }

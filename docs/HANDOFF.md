@@ -7,6 +7,8 @@
 - The workspace contains a prototype-first Next.js app with mock data, role-aware routes, tree grid, Leaflet/OpenStreetMap disease map, uploads, inspections, AI feedback, reports, and Supabase blueprint SQL.
 - `DESIGN.md` defines the operational GIS design system, and shared UI surfaces have been visually tightened around that language.
 - The latest map workflow work links Leaflet farm/field/tree selection to an embedded tree grid and adds in-memory session map grids with reopen, export, and delete actions.
+- The map grid now keeps all currently visible rows when a tree is selected, adds heatmap-style row cues and probability/latest-scan columns, and shows a richer selected-tree detail panel with image, model probability, risk, scan, treatment, and health history.
+- The admin overview now includes a compact Leaflet operational map plus highest-risk farms/blocks, severe-stage queue, recent scan activity, and AI feedback summary panels.
 - Playwright E2E coverage now verifies the map-grid workflow against a production server on port `3100` using installed Chrome.
 - Recent UI recovery work fixed the plain-HTML map regression by cleaning stale local Next output and verifying the built app through a single production server on port `3001`.
 
@@ -61,6 +63,8 @@
 - Map-grid implementation note: saved map grids are intentionally in-memory only; they capture visible tree IDs, active filters, selected scope, and creation time without writing to Supabase.
 - Map-grid E2E verification completed on 2026-07-08: `npm run lint`, `npm run typecheck`, and `npm run test:e2e` passed locally. The E2E suite covers initial render, create/delete saved grids, farm/field map selection, grid row selection, reopen, CSV export, empty results/reset, and mobile overflow.
 - Playwright uses `playwright.config.ts`, `npm run test:e2e`, and the Chrome channel. Reports/results are ignored via `.gitignore`.
+- Playwright video recording is disabled because the restricted Windows sandbox can block video finalization with `browserContext.close: spawn EPERM`; screenshots and traces remain enabled on failure.
+- Verification completed on 2026-07-09 for the user-friendly map/overview pass: `npm run lint`, `npm run typecheck`, `npm run build`, focused row-selection E2E, and full `npm run test:e2e` after fixes.
 
 ## Open Questions
 

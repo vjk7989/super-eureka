@@ -8,6 +8,13 @@ import { downloadCsv, formatPercent } from "@/lib/utils";
 import { DiseaseStageBadge, HealthStatusBadge, InspectionStatusBadge } from "./badges";
 
 const columnHelper = createColumnHelper<Tree>();
+const stageHeat = {
+  none: "bg-emerald-50/30",
+  early_stage: "bg-yellow-50/60",
+  stage_1: "bg-orange-50/70",
+  stage_2: "bg-orange-100/80",
+  stage_3: "bg-red-50/90"
+};
 
 export function TreeGridTable({ trees, selectedTreeId, onSelectTree, exportFilename = "tree-grid.csv", testId = "tree-grid-table" }: { trees: Tree[]; selectedTreeId?: string; onSelectTree?: (tree: Tree) => void; exportFilename?: string; testId?: string }) {
   const [query, setQuery] = useState("");
@@ -17,7 +24,8 @@ export function TreeGridTable({ trees, selectedTreeId, onSelectTree, exportFilen
     columnHelper.accessor("longitude", { header: "Longitude", cell: (info) => info.getValue().toFixed(6) }),
     columnHelper.accessor("currentHealthStatus", { header: "Health", cell: (info) => <HealthStatusBadge value={info.getValue()} /> }),
     columnHelper.accessor("currentDiseaseStage", { header: "Stage", cell: (info) => <DiseaseStageBadge value={info.getValue()} /> }),
-    columnHelper.accessor("currentConfidence", { header: "Confidence", cell: (info) => formatPercent(info.getValue()) }),
+    columnHelper.accessor("currentConfidence", { header: "Probability", cell: (info) => <ProbabilityCell value={info.getValue()} /> }),
+    columnHelper.accessor("latestScanDate", { header: "Latest scan" }),
     columnHelper.accessor("inspectionStatus", { header: "Inspection", cell: (info) => <InspectionStatusBadge value={info.getValue()} /> }),
     columnHelper.accessor("riskScore", { header: "Risk", cell: (info) => info.getValue() }),
     columnHelper.display({ id: "actions", header: "Actions", cell: (info) => <div className="flex gap-2 text-xs"><Link className="underline" href={`/trees/${info.row.original.id}/map`}>Map</Link><Link className="underline" href={`/manager/inspections/assign?tree=${info.row.original.id}`}>Assign</Link></div> })
@@ -55,7 +63,7 @@ export function TreeGridTable({ trees, selectedTreeId, onSelectTree, exportFilen
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className={`border-t border-border ${onSelectTree ? "cursor-pointer hover:bg-secondary/60 focus-within:bg-secondary/60" : ""} ${selectedTreeId === row.original.id ? "bg-primary/10" : ""}`}
+                className={`border-t border-border ${stageHeat[row.original.currentDiseaseStage]} ${onSelectTree ? "cursor-pointer hover:bg-secondary/70 focus-within:bg-secondary/70" : ""} ${selectedTreeId === row.original.id ? "outline outline-2 outline-primary/60" : ""}`}
                 onClick={() => onSelectTree?.(row.original)}
                 onKeyDown={(event) => {
                   if (!onSelectTree) return;
@@ -75,6 +83,21 @@ export function TreeGridTable({ trees, selectedTreeId, onSelectTree, exportFilen
           </tbody>
         </table>
         {visibleRows.length === 0 ? <p className="p-6 text-sm text-muted-foreground">No trees match the current filters.</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function ProbabilityCell({ value }: { value: number }) {
+  const percent = Math.round(value * 100);
+  const fill = percent >= 85 ? "bg-red-500" : percent >= 70 ? "bg-orange-500" : percent >= 55 ? "bg-amber-400" : "bg-emerald-500";
+  return (
+    <div className="min-w-28">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-semibold tabular-nums">{formatPercent(value)}</span>
+      </div>
+      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className={`h-full rounded-full ${fill}`} style={{ width: `${percent}%` }} />
       </div>
     </div>
   );
