@@ -10,5 +10,5 @@ export default function AdminOverview({ searchParams }: { searchParams?: Record<
   const fieldIds = new Set(trees.map((tree) => tree.fieldId));
   const farms = repositories.farms.list().filter((farm) => farmIds.has(farm.id));
   const fields = repositories.fields.list().filter((field) => fieldIds.has(field.id));
-  return <AppShell role={role}><Dashboard title="Command Overview" description="Map-first executive view of farms, disease pressure, inspections, and AI feedback." trees={trees} farms={farms} fields={fields} showOverviewMap /></AppShell>;
+  return <AppShell role={role}><Dashboard title="ESN LABS Command Overview" description="ESN LABS map-first executive view of farms, disease pressure, inspections, and AI feedback." trees={trees} farms={farms} fields={fields} showOverviewMap /></AppShell>;
 }

@@ -80,7 +80,7 @@ Keep entries short, dated, and factual. Prefer recording decisions that affect f
 
 ### 2026-07-07: Implement Leaflet Operational Disease Map
 
-**Decision:** Replace the placeholder map canvas with a Leaflet/OpenStreetMap disease map and Godrej-style demo operating data.
+**Decision:** Replace the placeholder map canvas with a Leaflet/OpenStreetMap disease map and prototype demo operating data.
 
 **Why:** The product needs real farm, block, tree, filter, in-charge, and heatmap interactions before Supabase/PostGIS integration.
 
@@ -88,13 +88,13 @@ Keep entries short, dated, and factual. Prefer recording decisions that affect f
 
 - Use `react-leaflet@4` because the project is on React 18.
 - Keep OpenStreetMap as the no-token default map source.
-- Treat the Godrej context as operational reference only; do not add official branding unless approved assets are provided.
+- Treat third-party operating context as reference only; keep visible product branding under the approved prototype brand.
 - Keep demo map data behind repositories so real GIS data can replace it later.
 - Do not rely on a global Leaflet minimum height; each map shell should own its responsive height.
 
 ### 2026-07-08: Add Operational GIS Design System
 
-**Decision:** Add `DESIGN.md` as the semantic design source for the Oil Palm Health Command Center and align shared UI surfaces to an operational GIS style.
+**Decision:** Add `DESIGN.md` as the semantic design source for the ESN LABS AI Disease Command Center and align shared UI surfaces to an operational GIS style.
 
 **Why:** The app needs a durable design language for map-first, dense, repeated operational workflows before broader feature work continues.
 
@@ -143,6 +143,18 @@ Keep entries short, dated, and factual. Prefer recording decisions that affect f
 - Keep heatmap-style grid cues as row-level severity/probability/status affordances, not a replacement for the tabular grid.
 - Keep selected-tree detail rich but compact: latest image, health, disease stage, probability, risk, scan date, inspection/treatment status, and recent history.
 - Overview maps should stay compact and operational, using role-scoped farms, fields, and trees instead of embedding the full map-grid workspace.
+
+### 2026-07-13: Adopt ESN LABS Prototype Branding
+
+**Decision:** Use ESN LABS as the visible prototype brand and store the supplied logo at `public/brand/esn-labs-logo.png`.
+
+**Why:** The app needs explicit ESN LABS identity across the shell, login, metadata, map, overview, and operational pages while preserving oil-palm workflow terminology.
+
+**Care points:**
+
+- The supplied image reads Ether Space Network, so pair it with explicit `ESN LABS` text wherever it is used.
+- Reference the asset as `/brand/esn-labs-logo.png`; do not point routes at `/public/...`.
+- Keep farm names, tree IDs, GAVL codes, and oil-palm disease terms as operational data unless a separate data-renaming task is approved.
 
 ## Error And Fix Log
 

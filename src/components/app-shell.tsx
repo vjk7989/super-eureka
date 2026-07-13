@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Activity, BarChart3, ClipboardList, Database, FileText, Map, Settings, Sprout, Upload, Users } from "lucide-react";
 import type { Role } from "@/lib/types";
 import { roleLabels } from "@/lib/utils";
+import { BrandLockup } from "./brand-lockup";
 import { PersonaSwitcher } from "./persona-switcher";
 
 const navigation: Array<{ href: string; label: string; icon: React.ComponentType<{ className?: string }>; roles: Role[] }> = [
@@ -24,8 +25,10 @@ export function AppShell({ children, role }: { children: React.ReactNode; role: 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-border bg-sidebar px-4 py-5 shadow-sm lg:block">
-        <Link href={`/admin/overview?role=${role}`} className="block rounded-md px-2 py-1 text-xl font-semibold tracking-normal text-sidebar-foreground hover:bg-sidebar-accent">Oil Palm Health</Link>
-        <p className="mt-1 px-2 text-sm text-muted-foreground">Operational GIS prototype</p>
+        <Link href={`/admin/overview?role=${role}`} className="block rounded-md px-2 py-1 text-sidebar-foreground hover:bg-sidebar-accent">
+          <BrandLockup subtitle="AI Disease Command Center" />
+        </Link>
+        <p className="mt-2 px-2 text-sm text-muted-foreground">ESN LABS operational GIS prototype</p>
         <nav className="mt-7 space-y-1">
           {items.map((item) => (
             <Link key={item.href} href={`${item.href}?role=${role}`} className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
@@ -37,9 +40,12 @@ export function AppShell({ children, role }: { children: React.ReactNode; role: 
       </aside>
       <main className="lg:pl-72">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase text-muted-foreground">Prototype role</p>
-            <h1 className="text-lg font-semibold">{roleLabels[role]}</h1>
+          <div className="flex min-w-0 items-center gap-4">
+            <BrandLockup size="sm" subtitle="ESN LABS workspace" className="max-w-[190px] sm:max-w-none" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase text-muted-foreground">ESN LABS role</p>
+              <h1 className="truncate text-lg font-semibold">{roleLabels[role]}</h1>
+            </div>
           </div>
           <PersonaSwitcher role={role} />
         </header>

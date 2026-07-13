@@ -9,5 +9,5 @@ export default function UploadCenter({ searchParams }: { searchParams?: Record<s
     ["/admin/uploads/drone-images", "Drone Images", "Mock image upload and preview path convention before Supabase Storage."],
     ["/admin/uploads/predictions", "AI Predictions", "Preview model outputs and simulate tree sync across dashboards."]
   ];
-  return <AppShell role={role}><h2 className="mb-4 text-2xl font-semibold">Upload Center</h2><div className="grid gap-4 md:grid-cols-3">{cards.map(([href, title, text]) => <Link key={href} href={withRole(href, role)} className="rounded-lg border border-border bg-card p-4 hover:bg-accent"><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm text-muted-foreground">{text}</p></Link>)}</div></AppShell>;
+  return <AppShell role={role}><h2 className="mb-4 text-2xl font-semibold">ESN LABS Upload Center</h2><div className="grid gap-4 md:grid-cols-3">{cards.map(([href, title, text]) => <Link key={href} href={withRole(href, role)} className="rounded-lg border border-border bg-card p-4 hover:bg-accent"><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm text-muted-foreground">ESN LABS {text}</p></Link>)}</div></AppShell>;
 }

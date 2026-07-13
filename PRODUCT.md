@@ -10,7 +10,7 @@ Plantation operations leaders, farm managers, field inspectors, AI/dev reviewers
 
 ## Product Purpose
 
-Oil Palm Health Command Center helps teams find, prioritize, inspect, and track Ganoderma disease risk across large oil palm operations. Success means managers can locate affected farms and blocks quickly, inspectors can act on exact tree locations, and AI/dev teams can learn from false-positive and correction feedback.
+ESN LABS AI Disease Command Center helps teams find, prioritize, inspect, and track Ganoderma disease risk across large oil palm operations. Success means managers can locate affected farms and blocks quickly, inspectors can act on exact tree locations, and AI/dev teams can learn from false-positive and correction feedback.
 
 ## Brand Personality
 
@@ -18,7 +18,7 @@ Operational, precise, grounded.
 
 ## Anti-references
 
-Do not make this feel like a marketing landing page, a decorative agritech demo, or a generic map toy. Avoid official Godrej logos or full brand claims unless approved assets are provided.
+Do not make this feel like a marketing landing page, a decorative agritech demo, or a generic map toy. Use ESN LABS as the approved prototype brand while preserving oil-palm operational terminology.
 
 ## Design Principles
 

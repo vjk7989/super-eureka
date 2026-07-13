@@ -137,7 +137,7 @@ function imageFor(stage: DiseaseStage) {
 function makeHistory(treeId: string, treeCode: string, stage: DiseaseStage, confidence: number, scanDate: string, health: HealthStatus): TreeHistoryEvent[] {
   const stageText = stage.replaceAll("_", " ");
   const events: TreeHistoryEvent[] = [
-    { id: `${treeId}-h1`, treeId, eventType: "drone_scan", eventTitle: "Drone scan uploaded", eventDescription: `${treeCode} processed in Godrej operational demo scan.`, createdAt: scanDate },
+    { id: `${treeId}-h1`, treeId, eventType: "drone_scan", eventTitle: "Drone scan uploaded", eventDescription: `${treeCode} processed in ESN LABS operational demo scan.`, createdAt: scanDate },
     { id: `${treeId}-h2`, treeId, eventType: "ai_prediction", eventTitle: health === "healthy" ? "Tree classified healthy" : `Ganoderma ${stageText} detected`, eventDescription: `AI confidence ${Math.round(confidence * 100)}%.`, createdAt: scanDate }
   ];
   if (health !== "healthy") {

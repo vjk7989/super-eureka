@@ -1,4 +1,4 @@
-# Design System: Oil Palm Health Command Center
+# Design System: ESN LABS AI Disease Command Center
 **Project ID:** GUI-oilpalm
 
 ## 1. Visual Theme & Atmosphere

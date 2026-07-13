@@ -208,8 +208,8 @@ export function DiseaseMapClient({ farms, fields, trees }: { farms: Farm[]; fiel
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border bg-card px-4 py-3">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase text-muted-foreground">Map surface</p>
-                <h2 className="text-lg font-semibold leading-tight">Godrej Oil Palm Disease Map</h2>
-                <p className="mt-1 max-w-3xl text-sm leading-5 text-muted-foreground">Operational demo data inspired by Godrej Agrovet oil palm geographies.</p>
+                <h2 className="text-lg font-semibold leading-tight">ESN LABS Oil Palm Disease Map</h2>
+                <p className="mt-1 max-w-3xl text-sm leading-5 text-muted-foreground">ESN LABS operational demo data for oil palm disease geographies.</p>
               </div>
               <Legend />
             </div>
